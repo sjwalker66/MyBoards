@@ -1,0 +1,63 @@
+https://forum.arduino.cc/t/128k-vs-256k-atsamd21/577071/10
+
+Specific to SAMD21G15
+https://forum.arduino.cc/t/atmel-samd21-bootloader-issues/916597
+
+Install samd boards from board manager, this installs compiler
+
+############################################################
+CODE (!!Not bootloader !!) is uploaded by Arduino with the command
+
+/Users/walker/Library/Arduino15/packages/arduino/tools/bossac/1.7.0-arduino3/bossac -i -d --port=cu.usbmodem11301 -U true -i -e -w -v /var/folders/lb/36k4yt153dj7lxyqqwyczvz00000gn/T/arduino_build_440/DroneController1.ino.bin -R 
+Set binary mode
+readWord(addr=0)=0x20002de0
+############################################################
+
+
+
+Makfile is in bootloaders/zero , run script build_all_bootloaders.sh
+
+
+to make 32 KB memory version:
+
+Edit boards.txt
+
+Shrink memory sizes
+#mkrzero.upload.maximum_size=262144
+#mkrzero.upload.maximum_data_size=32768
+mkrzero.upload.maximum_size=32768
+mkrzero.upload.maximum_data_size=4096
+
+
+Shrink ram in
+flash_with_bootloader.ld
+flash_without_bootloader.ld
+
+
+/*
+  FLASH (rx) : ORIGIN = 0x00000000+0x2000, LENGTH = 0x00040000-0x2000
+  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
+  */
+  
+  FLASH (rx) : ORIGIN = 0x00000000+0x2000, LENGTH = 0x00008000-0x2000 /* First 8KB used by bootloader */
+  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00001000
+
+
+
+
+
+board_definitions_arduino_mkrzero.h
+set double tap 4 bytes from end of ram
+ 
+/* sjwalker
+#define BOOT_DOUBLE_TAP_ADDRESS           (0x20007FFCul)
+*/
+#define BOOT_DOUBLE_TAP_ADDRESS           (0x20000FFCul)
+
+
+
+###############################
+mx32 copied and replaced  mkrzero
+
+Added new variat in
+boards.txt
